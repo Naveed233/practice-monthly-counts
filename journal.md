@@ -212,6 +212,118 @@ export default function Home() {
     <p>Selected: {projectId}</p>
     </div>
 };
+- useState: returns [value, setter]; calling the setter stores the value AND triggers a redraw
+    - select wiring: options = fixed choices (literal values), select = current choice (value={state})
+    - option values must match DB casing exactly (project_1, not Project_1) — same silent-mismatch family as the 'project-3' hyphen typo in SQL
 
 - loop rule
 inside a loop or map, use the loop's own variable, never the outer collection.
+
+-adding table to index.tsx with month name and number of rows 
+
+import { useState , useEffect } from 'react';
+
+export default function Home() {
+    const [projectId, setProjectId] = useState('project_1'); 
+    const [rows, setRows] = useState<{ month: string; count: number }[]>([]);
+    useEffect(() => {
+
+        fetch('/api/monthly-ticket-counts?projectId=' + projectId )
+        .then((r) => r.json())
+        .then((data) => setRows(data));
+}, [projectId]);
+
+    return <div>
+
+        <h1>Monthly Ticket Counts</h1>
+
+        <label  htmlFor = "projectId">Choose a project:</label>
+
+        <select name="tickets" id="projectId" value={projectId} onChange={(e) => setProjectId(e.target.value) }>
+        <option value="project_1">Project_1</option>
+        <option value="project_2">Project_2</option>
+        <option value="project_3">Project_3</option>
+        </select>
+        
+    <p>Selected: {projectId}</p>
+    <p>Rows: {rows.length}</p>
+    <table>
+            <thead>
+                <tr><th>Month</th><th>Count</th></tr>
+            </thead>
+            <tbody>
+                {rows.map((row) => (
+                <tr key={row.month}>
+                    <td>{row.month}</td>
+                    <td>{row.count}</td>
+                </tr>
+                ))}
+            </tbody>
+    </table>
+    </div>
+};
+
+- useEffect(() => {...}, [projectId]) = run after render, re-run when projectId changes
+- two errors hit while building the table:
+    - TS "Property 'month' does not exist on type 'never'" — useState([]) infers never[]; fix: declare the row shape useState<{month: string; count: number}[]>([])
+    - runtime "Objects are not valid as a React child" — rendered the whole rows array in a cell instead of row.month / row.count (loop rule again)
+
+  - tests 
+    - npm install -D vitest
+    - add  "test": "vitest run" to package.json
+
+import { test, expect } from 'vitest';
+
+test('project_1 returns all rows across the 1000-row cap', async () => {
+  const res = await fetch('http://localhost:3000/api/monthly-ticket-counts?projectId=project_1');
+  const rows = await res.json();
+
+  let sum = 0;
+      for (const row of rows) {
+        sum += row.count;
+} 
+  expect(sum).toBe(2340);
+});
+
+- RUN  
+ v4.1.11 /Users/naveedmaqbool/Desktop/app1/practice-monthly-counts
+
+ ✓ tests/monthly-ticket-count.test.ts (1 test) 2218ms
+   ✓ project_1 returns all rows across the 1000-row cap  2218ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  14:45:09
+   Duration  2.35s (transform 8ms, setup 0ms, import 13ms, tests 2.22s, environment 0ms)
+
+naveedmaqbool@MAQBOOLnoMacBook-Air practice-monthly-counts % 
+
+- test to see row count > 1000
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/monthly-ticket-count.test.ts > project_1 returns all rows across the 1000-row cap
+AssertionError: expected 1000 to be 2340 // Object.is equality
+
+- Expected
++ Received
+
+- 2340
++ 1000
+
+ ❯ tests/monthly-ticket-count.test.ts:11:15
+      9|         sum += row.count;
+     10| }
+     11|   expect(sum).toBe(2340);
+       |               ^
+     12| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  14:47:46
+   Duration  698ms (transform 7ms, setup 0ms, import 12ms, tests 575ms, environment 0ms)
+  
+> correct
