@@ -1,4 +1,4 @@
-# practice-monthly-counts
+# practice-monthly-counts (Geoscope ticket#178 copy) 
 
 Practice task: monthly ticket counts per project (mirrors sensy-geoscope PR #178).
 Live: https://practice-monthly-counts.vercel.app
@@ -15,13 +15,15 @@ Next.js (Pages Router) app showing monthly ticket counts per project.
 
 1. `npm install`
 2. Create `.env.local`:
+```
 NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your publishable key>
+```
 3. `npm run dev` → http://localhost:3000
 
 ## Seed
 
-Run `⟨path to your seed .sql file⟩` in the Supabase SQL editor.
+Run `⟨lib/supabase/migrations/20260826164430_seed.sql⟩` in the Supabase SQL editor.
 Creates 3 projects across 6 months: project_1 = 2,600 rows (~10% NULL
 prediction_executed_at), project_2 = 400, project_3 = 600.
 The `tickets` table needs an RLS SELECT policy for the anon role.
@@ -34,9 +36,9 @@ With the dev server running:
 One integration test asserts project_1's monthly counts sum to 2,340.
 Removing the paging loop drops the sum to ~1,000 and fails the test:
 
-⟨screenshot: <img width="363" height="226" alt="image" src="https://github.com/user-attachments/assets/57ea8562-5f9d-425c-a007-458bda6f00eb" />
+⟨screenshot: <img width="363" height="226" alt="image" src="https://github.com/user-attachments/assets/57ea8562-5f9d-425c-a007-458bda6f00eb" >
 ⟩
-⟨screenshot: <img width="353" height="350" alt="image" src="https://github.com/user-attachments/assets/f60b092e-31bb-49cb-ba25-d76bf0ed02b5" />
+⟨screenshot: <img width="353" height="350" alt="image" src="https://github.com/user-attachments/assets/f60b092e-31bb-49cb-ba25-d76bf0ed02b5" >
 ⟩
 
 ## Verification
@@ -44,7 +46,6 @@ Removing the paging loop drops the sum to ~1,000 and fails the test:
 API output matches SQL GROUP BY in the Supabase dashboard, month by month
 (project_1: 394 / 391 / 389 / 389 / 389 / 388):
 
-⟨screenshot: 
 SQL 
 | month   | count |
 | ------- | ----- |
