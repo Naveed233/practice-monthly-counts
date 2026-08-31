@@ -1,6 +1,6 @@
 - updated npm
 - set up project on local and opened with vscode
-- created supabase project and made a table called tickets with 4 rows 
+- created supabase project and made a table called tickets with 4 columns 
 - filled rows with random data ranged over 6 months (3 projects, 1 with >1000 rows) using a seed file
     - seedfile format - YYYYMMDDHHMMSS_name.sql
     - LLM generated sql code with 3 errors 
@@ -138,4 +138,80 @@ if (error !== null) {
         tally[month] = (tally[month] ?? 0) + 1;
 } 
       console.log(tally)
-    
+  
+- check for all projects per month
+
+      const result = Object.entries(tally)                    
+        .map(([name, n]) => ({ month: name, count: n }))
+        .sort((a, b) => a.month.localeCompare(b.month));      
+
+      res.status(200).json(result);
+    } else {  
+      res.status(405).json({ message: "Method not allowed" });
+    }
+  }
+
+-app/ and pages/ collide
+app/page.tsx (from create-next-app's default scaffold) claims the URL / — App Router
+your new pages/index.tsx also claims / — Pages Router
+
+Both routers may coexist in one project, but each URL must belong to exactly one of them. Two files claiming / → Next.js refuses to serve it: 
+
+Conflicting app and pages file: "app/page.tsx" and "pages/index.tsx".
+
+Checks
+
+-Compare 6 numbers in browser vs supabase to confirm data correctness
+
+Supabase
+select
+  left(prediction_executed_at::text, 7) as month,
+  count(*) as count 
+from tickets
+where project_id = 'project_1'
+  and prediction_executed_at is not null
+group by 1
+order by 1;
+
+web
+
+```
+[{"month":"2026-01","count":394},{"month":"2026-02","count":391},{"month":"2026-03","count":389},{"month":"2026-04","count":389},{"month":"2026-05","count":389},{"month":"2026-06","count":388}]
+
+supabase
+| month   | count |
+| ------- | ----- |
+| 2026-01 | 394   |
+| 2026-02 | 391   |
+| 2026-03 | 389   |
+| 2026-04 | 389   |
+| 2026-05 | 389   |
+| 2026-06 | 388   |
+```
+
+Data matches 
+
+-UI page index.tsx
+
+import { useState } from 'react';  
+export default function Home() {
+    const [projectId, setProjectId] = useState('project_1');
+  
+    return <div>
+
+        <h1>Monthly Ticket Counts</h1>
+
+        <label  htmlFor = "projectId">Choose a project:</label>
+
+        <select name="tickets" id="projectId" value={projectId} onChange={(e) => setProjectId(e.target.value) }>
+        <option value="project_1">Project_1</option>
+        <option value="project_2">Project_2</option>
+        <option value="project_3">Project_3</option>
+        </select>
+
+    <p>Selected: {projectId}</p>
+    </div>
+};
+
+- loop rule
+inside a loop or map, use the loop's own variable, never the outer collection.
