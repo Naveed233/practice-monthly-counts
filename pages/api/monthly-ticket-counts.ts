@@ -14,7 +14,7 @@
     if (req.method === 'GET') {
       const { projectId } = req.query;
       if (typeof projectId !== 'string') {
-        res.status(400).end('Invalid query: project_id is required and must be a string')
+        res.status(400).end('Invalid query: projectId is required and must be a string')
       return
       }
 
