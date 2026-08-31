@@ -35,7 +35,6 @@
           return;
         }
         allRows = allRows.concat(data);
-        
         if (data.length < BATCH) break;  // short slice = last slice
         from += BATCH;
       }

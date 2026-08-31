@@ -327,3 +327,5 @@ AssertionError: expected 1000 to be 2340 // Object.is equality
    Duration  698ms (transform 7ms, setup 0ms, import 12ms, tests 575ms, environment 0ms)
   
 > correct
+
+- Deploy on vercel
