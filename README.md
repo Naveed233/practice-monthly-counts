@@ -69,4 +69,6 @@ API の出力が Supabase ダッシュボードの SQL GROUP BY と月ごとに�
 
 ## 作業ログ
 
-試行錯誤と学びの記録: [journal.md](./journal.md)
+試行錯誤と学びの記録: 
+English [journal.md](./journal.md)
+日本語 [journalーjp.md](./journal-jp.md)
