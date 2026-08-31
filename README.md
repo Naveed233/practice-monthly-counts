@@ -36,10 +36,9 @@ With the dev server running:
 One integration test asserts project_1's monthly counts sum to 2,340.
 Removing the paging loop drops the sum to ~1,000 and fails the test:
 
-⟨screenshot: <img width="363" height="226" alt="image" src="https://github.com/user-attachments/assets/57ea8562-5f9d-425c-a007-458bda6f00eb" >
-⟩
-⟨screenshot: <img width="353" height="350" alt="image" src="https://github.com/user-attachments/assets/f60b092e-31bb-49cb-ba25-d76bf0ed02b5" >
-⟩
+<img width="363" height="226" alt="image" src="https://github.com/user-attachments/assets/57ea8562-5f9d-425c-a007-458bda6f00eb" >
+
+<img width="353" height="350" alt="image" src="https://github.com/user-attachments/assets/f60b092e-31bb-49cb-ba25-d76bf0ed02b5" >
 
 ## Verification
 
