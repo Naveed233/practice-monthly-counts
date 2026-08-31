@@ -23,7 +23,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<your publishable key>
 
 ## Seed
 
-Run `⟨lib/supabase/migrations/20260826164430_seed.sql⟩` in the Supabase SQL editor.
+Run `lib/supabase/migrations/20260826164430_seed.sql` in the Supabase SQL editor.
 Creates 3 projects across 6 months: project_1 = 2,600 rows (~10% NULL
 prediction_executed_at), project_2 = 400, project_3 = 600.
 The `tickets` table needs an RLS SELECT policy for the anon role.
