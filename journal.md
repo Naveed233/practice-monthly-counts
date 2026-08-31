@@ -329,3 +329,6 @@ AssertionError: expected 1000 to be 2340 // Object.is equality
 > correct
 
 - Deploy on vercel
+
+- test timed out at default 5s (cold compile + 3 sequential fetches) → raised timeout to 15s via test()'s third argument; dev server must be running
+- response can be sent only once per request — never res.json() inside the paging loop

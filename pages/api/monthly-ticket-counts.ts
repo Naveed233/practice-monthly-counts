@@ -3,6 +3,7 @@
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Missing Supabase environment variables');
   }
@@ -11,9 +12,9 @@
 
   export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'GET') {
-      const { projectId: projectId } = req.query;
+      const { projectId } = req.query;
       if (typeof projectId !== 'string') {
-        res.status(400).end('Invalid body: project_id is required and must be a string')
+        res.status(400).end('Invalid query: project_id is required and must be a string')
       return
       }
 
