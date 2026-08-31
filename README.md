@@ -1,63 +1,72 @@
-# practice-monthly-counts (Geoscope ticket#178 copy) 
+# practice-monthly-counts（Geoscope PR #178 演習）
 
-Practice task: monthly ticket counts per project (mirrors sensy-geoscope PR #178).
+自主練習タスク1: プロジェクトごとの月別チケット数 API。
+sensy-geoscope PR #178 を題材に、業務と同じ技術構成で、LLM にコード実装を
+頼らずに行った練習タスク。
+
 Live: https://practice-monthly-counts.vercel.app
 
-## What it does
+## 課題
 
-Next.js (Pages Router) app showing monthly ticket counts per project.
-- Counts by `prediction_executed_at`, excluding NULL rows
-- Paginates with `.range()` in 1,000-row batches past PostgREST's default
-  per-request cap — project_1 (2,340 non-null rows) returns correct totals
-- Stack: Next.js / TypeScript / Supabase (@supabase/supabase-js) / Vercel
+**ゴール:** 1リクエストあたりの取得上限を超える行数を持つプロジェクトでも、
+正しい月別集計値を返す Next.js アプリをデプロイする。
 
-## Run locally
+**要件:**
+1. テーブル `tickets`（id / project_id / created_at / prediction_executed_at nullable）。
+   1プロジェクトに 2,500 行以上、他2プロジェクトに数百行を6か月以上に分散投入。
+   投入方法は再現可能であること（SQL ファイルをリポジトリに含める）
+2. `GET /api/monthly-ticket-counts?projectId=...` が `[{ month, count }, ...]` を返す。
+   集計キーは `prediction_executed_at`、null 行は除外（#178 の学びの適用）。
+   PostgREST の既定の取得上限（1,000行）を考慮した実装
+3. プロジェクトを選択し集計結果をテーブル表示する最小限のページ
+4. 取得上限対応を外した場合に失敗するテストを最低1つ
+5. Vercel にデプロイ。環境変数はダッシュボードで設定しコミットしない
+
+**完了条件:** デプロイ済み URL が3プロジェクトで正しい値を返す（SQL 集計と突き合わせ）／
+null 除外を確認できる／取得上限対応を外すとテストが失敗する／README と作業ログを含む
+
+## 実装内容
+
+Next.js（Pages Router）+ TypeScript + Supabase（@supabase/supabase-js）+ Vercel。
+- `prediction_executed_at` で集計し、null 行は除外
+- `.range()` による 1,000 行単位のページングで取得上限に対応
+  — project_1（非 null 2,340 行）でも正しい合計を返す
+
+## ローカルでの実行方法
 
 1. `npm install`
-2. Create `.env.local`:
+2. `.env.local` を作成:
+
 ```
-NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your publishable key>
+NEXT_PUBLIC_SUPABASE_URL=<Supabase プロジェクトの URL>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable キー>
 ```
+
 3. `npm run dev` → http://localhost:3000
 
-## Seed
+## シードデータ
 
-Run `lib/supabase/migrations/20260826164430_seed.sql` in the Supabase SQL editor.
-Creates 3 projects across 6 months: project_1 = 2,600 rows (~10% NULL
-prediction_executed_at), project_2 = 400, project_3 = 600.
-The `tickets` table needs an RLS SELECT policy for the anon role.
+`lib/supabase/migrations/20260826164430_seed.sql` を Supabase の SQL エディタで実行。
+3プロジェクト・6か月分を生成: project_1 = 2,600 行（約10%が
+prediction_executed_at null）、project_2 = 400 行、project_3 = 600 行。
+`tickets` テーブルには anon ロール向けの RLS SELECT ポリシーが必要。
 
-## Test
+## テスト
 
-With the dev server running:
-`npm test`
+開発サーバーを起動した状態で `npm test`。
 
-One integration test asserts project_1's monthly counts sum to 2,340.
-Removing the paging loop drops the sum to ~1,000 and fails the test:
+統合テスト1件: project_1 の月別カウントの合計が 2,340 であることを検証する。
+ページング処理を外すと合計が約 1,000 に落ち、テストが失敗する:
 
-<img width="363" height="226" alt="image" src="https://github.com/user-attachments/assets/57ea8562-5f9d-425c-a007-458bda6f00eb" >
+（← ここに既存のスクリーンショット2枚の img タグをそのまま残す）
 
-<img width="353" height="350" alt="image" src="https://github.com/user-attachments/assets/f60b092e-31bb-49cb-ba25-d76bf0ed02b5" >
+## 検証
 
-## Verification
+API の出力が Supabase ダッシュボードの SQL GROUP BY と月ごとに一致
+（project_1: 394 / 391 / 389 / 389 / 389 / 388）:
 
-API output matches SQL GROUP BY in the Supabase dashboard, month by month
-(project_1: 394 / 391 / 389 / 389 / 389 / 388):
+（← 既存の SQL / Browser 比較ブロックをそのまま残す）
 
-SQL 
-| month   | count |
-| ------- | ----- |
-| 2026-01 | 394   |
-| 2026-02 | 391   |
-| 2026-03 | 389   |
-| 2026-04 | 389   |
-| 2026-05 | 389   |
-| 2026-06 | 388   |
+## 作業ログ
 
-Browser
-[{"month":"2026-01","count":394},{"month":"2026-02","count":391},{"month":"2026-03","count":389},{"month":"2026-04","count":389},{"month":"2026-05","count":389},{"month":"2026-06","count":388}]
-
-## Journal
-
-Work log with mistakes and lessons: [journal.md](./journal.md)
+試行錯誤と学びの記録: [journal.md](./journal.md)
